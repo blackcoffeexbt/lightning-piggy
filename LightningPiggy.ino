@@ -1,11 +1,11 @@
 #include <ArduinoJson.h>
 #include <WiFiClientSecure.h>
 
-const char* ssid     = "";
-const char* password = "";
+const char* ssid     = "SSID";
+const char* password = "PASSWORD";
 
 const char* host = "legend.lnbits.com";
-const char* invoiceKey = "xxxxxxxxxxxxx";
+const char* invoiceKey = "xxxxxxxxxxxxxxxxxxxx";
 
 int walletBalance = 0;
 
@@ -93,7 +93,9 @@ void getLNURLPayments(int limit) {
         amount = amount / 1000;
         const char* comment = areaElems["extra"]["comment"];
         Serial.print(comment);
-        Serial.print(" - " + String(amount) + " sats ");
+        Serial.print(F(" - "));
+        Serial.print(amount);
+        Serial.print(F(" sats "));
         Serial.println();
       }
     }
