@@ -6,7 +6,7 @@
  *
  */
 
-#include <WiFi.h>
+#include <WiFiClientSecure.h>
 
 const char* ssid     = "Maddox-Guest";
 const char* password = "MadGuest1";
@@ -43,51 +43,60 @@ int value = 0;
 
 void loop()
 {
-    delay(5000);
+    WiFiClientSecure client;
+
+    delay(20000);
     ++value;
 
     Serial.print("connecting to ");
     Serial.println(host);
 
-    // Use WiFiClient class to create TCP connections
-    WiFiClient client;
-    const int httpPort = 443;
-    if (!client.connect(host, httpPort)) {
-        Serial.println("connection failed");
-        return;
-    }
+  client.setInsecure(); //Some versions of WiFiClientSecure need this
 
-    // We now create a URI for the request
-    String url = "/api/v1/payments";
+  if (!client.connect(host, 443))
+  {
+    // error("SERVER DOWN");
+    delay(3000);
+    // return false;
+  }
 
-    Serial.print("Requesting URL: ");
-    Serial.println(url);
-
-client.print(String("GET ") + host + " HTTP/1.1\r\n" +
-               "Host: " + url + "\r\n" +
-               "User-Agent: LightningPiggy\r\n" +
+  const String url = "/api/v1/payments";
+  const String request = String("GET ") + url + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" +
+               "User-Agent: ESP32\r\n" +
                "X-Api-Key: " + invoiceKey + " \r\n" +
-               "Connection: close\r\n\r\n");
-               
-//    // This will send the request to the server
-//    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-//                 "Host: " + host + "\r\n" +
-//                 "Connection: close\r\n\r\n");
-    unsigned long timeout = millis();
-    while (client.available() == 0) {
-        if (millis() - timeout > 10000) {
-            Serial.println(">>> Client Timeout !");
-            client.stop();
-            return;
-        }
+               "Content-Type: application/json\r\n" +
+               "Connection: close\r\n\r\n";
+Serial.println(request);
+  client.print(request);
+  while (client.connected())
+  {
+    Serial.println("Reading line");
+    const String line = client.readStringUntil('\n');
+    Serial.println(line);
+    if (line == "\r")
+    {
+      break;
     }
+  }
 
-    // Read all the lines of the reply from server and print them to Serial
-    while(client.available()) {
-        String line = client.readStringUntil('\r');
-        Serial.print(line);
-    }
+Serial.println("Read all lines");
+  const String line = client.readString();
+  Serial.println(line);
+  StaticJsonDocument<5000> doc;
 
-    Serial.println();
-    Serial.println("closing connection");
+  DeserializationError error = deserializeJson(doc, line);
+  if (error)
+  {
+    Serial.print("deserializeJson() failed: ");
+    Serial.println(error.f_str());
+    return false;
+  }
+//   if (doc["paid"])
+//   {
+//     unConfirmed = false;
+//   }
+
+//   return unConfirmed;
+
 }
