@@ -4,8 +4,8 @@
 const char* ssid     = "";
 const char* password = "";
 
-const char* host = "sats.pw";
-const char* invoiceKey = "e24c3f0e71044b93866efeb0985e3135";
+const char* host = "legend.lnbits.com";
+const char* invoiceKey = "xxxxxxxxxxxxx";
 
 int walletBalance = 0;
 
@@ -38,7 +38,7 @@ void loop()
   Serial.println("-----------------");
   getWalletDetails();
   Serial.println("-----------------");
-  getLNURLPayments(5);
+  getLNURLPayments(3);
   Serial.println("-----------------");
   getLNURLp();
   Serial.println("-----------------");
@@ -50,7 +50,7 @@ void loop()
 void getWalletDetails() {
   const String url = "/api/v1/wallet";
   const String line = getEndpointData(url);
-  StaticJsonDocument<2000> doc;
+  StaticJsonDocument<3000> doc;
 
   DeserializationError error = deserializeJson(doc, line);
   if (error)
@@ -76,7 +76,7 @@ const char* walletName = doc["name"];
 void getLNURLPayments(int limit) {
   const String url = "/api/v1/payments?limit=" + String(limit);
   const String line = getEndpointData(url);
-  StaticJsonDocument<3000> doc;
+  StaticJsonDocument<4000> doc;
 
   DeserializationError error = deserializeJson(doc, line);
   if (error)
