@@ -6,6 +6,8 @@
  *
  */
 
+#include <ArduinoJson.h>
+
 #include <WiFiClientSecure.h>
 
 const char* ssid     = "Maddox-Guest";
@@ -45,7 +47,7 @@ void loop()
 {
     WiFiClientSecure client;
 
-    delay(20000);
+    delay(1000);
     ++value;
 
     Serial.print("connecting to ");
@@ -83,20 +85,36 @@ Serial.println(request);
 Serial.println("Read all lines");
   const String line = client.readString();
   Serial.println(line);
-  StaticJsonDocument<5000> doc;
+  StaticJsonDocument<2000> doc;
 
   DeserializationError error = deserializeJson(doc, line);
   if (error)
   {
     Serial.print("deserializeJson() failed: ");
     Serial.println(error.f_str());
-    return false;
+    // return false;
   }
+
+for (JsonObject areaElems : doc.as<JsonArray>()) {
+  Serial.println("Checking payment");
+  if(areaElems["extra"] && areaElems["extra"]["tag"] && areaElems["extra"]["comment"]) {
+    Serial.println("Got");
+    const char* value = areaElems["extra"]["tag"];
+    Serial.println(value);
+    const char* comment = areaElems["extra"]["comment"];
+    Serial.println(comment);
+  } else {
+    Serial.println("No extra or tag");
+  }
+}
+
 //   if (doc["paid"])
 //   {
 //     unConfirmed = false;
 //   }
 
 //   return unConfirmed;
+
+delay(15000);
 
 }
