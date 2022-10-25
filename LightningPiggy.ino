@@ -38,12 +38,12 @@ void loop()
   Serial.println("-----------------");
   getWalletDetails();
   Serial.println("-----------------");
-  getLNURLPayments(3);
+  getLNURLPayments(5);
   Serial.println("-----------------");
   getLNURLp();
   Serial.println("-----------------");
 
-  delay(30000);
+  hibernate(30);
 }
 
 
@@ -165,4 +165,16 @@ String getEndpointData(String endpointUrl) {
 
   const String line = client.readString();
   return line;
+}
+
+void hibernate(int sleepTimeSeconds) {
+  uint64_t deepSleepTime = (uint64_t)sleepTimeSeconds * (uint64_t)1000 * (uint64_t)1000;
+  Serial.println("Going to sleep for seconds");
+  Serial.println(deepSleepTime);
+  esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH,   ESP_PD_OPTION_OFF);
+  esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_SLOW_MEM, ESP_PD_OPTION_OFF);
+  esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_FAST_MEM, ESP_PD_OPTION_OFF);
+  esp_sleep_pd_config(ESP_PD_DOMAIN_XTAL,         ESP_PD_OPTION_OFF);
+  esp_sleep_enable_timer_wakeup(deepSleepTime);
+  esp_deep_sleep_start();
 }
