@@ -1,17 +1,40 @@
 #include <ArduinoJson.h>
 #include <WiFiClientSecure.h>
+#include <GxEPD2_BW.h>
+#include <GxEPD2_3C.h>
+#include <Fonts/FreeSansBold12pt7b.h>
+#include <Fonts/FreeSansBold6pt7b.h>
 
-const char* ssid     = "SSID";
-const char* password = "PASSWORD";
+const char* ssid     = "TheInternet";
+const char* password = "dc924b3898";
 
-const char* host = "legend.lnbits.com";
-const char* invoiceKey = "xxxxxxxxxxxxxxxxxxxx";
+const char* host = "sats.pw";
+const char* invoiceKey = "e24c3f0e71044b93866efeb0985e3135";
+
+String walletBalanceText = "";
+String paymentDetails = "";
 
 int walletBalance = 0;
+
+//GxEPD2_3C<GxEPD2_213c, GxEPD2_213c::HEIGHT> display(GxEPD2_213c(/*CS=5*/ SS, /*DC=*/ 22, /*RST=*/ 21, /*BUSY=*/ 4));
+// For black and white. Remember to change the _YELLOW colour
+GxEPD2_BW<GxEPD2_213_flex, GxEPD2_213_flex::HEIGHT> display(GxEPD2_213_flex(/*CS=5*/ SS, /*DC=*/ 22, /*RST=*/ 21, /*BUSY=*/ 4));
+
+/**
+ * Busy - g4
+ * Reset - g21
+ * D/C - g22
+ * CS - g5
+ * SCLK - g18
+ * SDI-g23
+ * GND - gnd
+ * VCC - 3.3
+ */
 
 void setup()
 {
     Serial.begin(115200);
+
     delay(100);
 
     Serial.println();
@@ -30,6 +53,15 @@ void setup()
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
 
+    delay(100);
+
+    display.init();
+    display.setRotation(1);
+    display.setFullWindow();
+    display.setTextColor(GxEPD_BLACK);
+    display.setFont(&FreeSansBold12pt7b);
+    display.fillScreen(GxEPD_WHITE);
+
     delay(1000);
 }
 
@@ -37,13 +69,22 @@ void loop()
 {
   Serial.println("-----------------");
   getWalletDetails();
+  printBalance();
   Serial.println("-----------------");
   getLNURLPayments(5);
   Serial.println("-----------------");
   getLNURLp();
   Serial.println("-----------------");
 
-  hibernate(30);
+  display.display(false); // full update
+
+  hibernate(300);
+}
+
+void printBalance() {
+    display.setCursor(10, 20);
+    // const char HelloWorld[] = "Hello World!";
+    display.print(walletBalanceText);
 }
 
 
@@ -59,14 +100,14 @@ void getWalletDetails() {
     Serial.println(error.f_str());
   }
 
-const char* walletName = doc["name"];
+  const char* walletName = doc["name"];
   walletBalance = doc["balance"];
   walletBalance = walletBalance / 1000;
 
   Serial.println(walletName);
   Serial.println(String(walletBalance) + " sats");
-
-  }
+  walletBalanceText = String(walletBalance) + " sats";
+}
 
 /**
  * @brief Get recent LNURL Payments
@@ -85,6 +126,7 @@ void getLNURLPayments(int limit) {
     Serial.println(error.f_str());
   }
 
+  uint16_t yPos = 40;
   for (JsonObject areaElems : doc.as<JsonArray>()) {
     if(areaElems["extra"] && areaElems["extra"]["tag"] && areaElems["extra"]["comment"]) {
       const char* tag = areaElems["extra"]["tag"];
@@ -97,6 +139,14 @@ void getLNURLPayments(int limit) {
         Serial.print(amount);
         Serial.print(F(" sats "));
         Serial.println();
+
+        display.setFont(&FreeSansBold6pt7b);
+        display.setCursor(10, yPos);
+        String paymentDetail(comment);
+        String paymentAmount(amount);
+        String output = paymentDetail.substring(0,20) + " - " + paymentAmount + " sats";
+        display.print(output);
+        yPos += 15;
       }
     }
   }
