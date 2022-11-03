@@ -127,6 +127,7 @@ void getLNURLPayments(int limit) {
   }
 
   uint16_t yPos = 40;
+  String output;
   for (JsonObject areaElems : doc.as<JsonArray>()) {
     if(areaElems["extra"] && areaElems["extra"]["tag"] && areaElems["extra"]["comment"]) {
       const char* tag = areaElems["extra"]["tag"];
@@ -134,17 +135,19 @@ void getLNURLPayments(int limit) {
         int amount = areaElems["amount"];
         amount = amount / 1000;
         const char* comment = areaElems["extra"]["comment"];
-        Serial.print(comment);
-        Serial.print(F(" - "));
-        Serial.print(amount);
-        Serial.print(F(" sats "));
-        Serial.println();
+        // Serial.print(comment);
+        // Serial.print(F(" - "));
+        // Serial.print(amount);
+        // Serial.print(F(" sats "));
+        // Serial.println();
 
         display.setFont(&FreeSansBold6pt7b);
         display.setCursor(10, yPos);
         String paymentDetail(comment);
         String paymentAmount(amount);
-        String output = paymentDetail.substring(0,20) + " - " + paymentAmount + " sats";
+        // output = paymentDetail.substring(0,20) + " - " + paymentAmount + " sats";
+        output = "This sssssssssssssss - 200 sats";
+        // output = "sat";
         display.print(output);
         yPos += 15;
       }
