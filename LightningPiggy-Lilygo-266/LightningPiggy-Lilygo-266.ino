@@ -53,7 +53,7 @@ void setup()
 
     delay(100);
 
-
+    SPI.begin(EPD_SCLK, EPD_MISO, EPD_MOSI);
     display.init();
     display.setRotation(0);
     display.fillScreen(GxEPD_WHITE);
