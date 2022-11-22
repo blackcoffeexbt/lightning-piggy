@@ -1,11 +1,13 @@
- #define LILYGO_T5_V266
+#include <ArduinoJson.h>
 
-#include <boards.h>
+#define LILYGO_T5_V266
 #include <GxEPD.h>
+#include <boards.h>
+
+#include <WiFiClientSecure.h>
 
 #include <GxDEPG0266BN/GxDEPG0266BN.h>    // 2.66" b/w   form DKE GROUP
 
-// FreeFonts from Adafruit_GFX
 #include <Fonts/FreeMonoBold9pt7b.h>
 #include <Fonts/FreeMonoBold12pt7b.h>
 #include <Fonts/FreeMonoBold18pt7b.h>
@@ -31,7 +33,17 @@ void setup()
 {
     Serial.begin(115200);
 
-    delay(100);
+    SPI.begin(EPD_SCLK, EPD_MISO, EPD_MOSI);
+    display.init();
+
+    display.setTextColor(GxEPD_BLACK);
+    display.setRotation(1);
+    display.fillScreen(GxEPD_WHITE);
+    
+    display.setFont(&FreeMonoBold12pt7b);
+    display.setCursor(20, 80);
+    display.println("Connecting to WiFi");
+    display.update();
 
     Serial.println();
     Serial.print("Connecting to ");
@@ -50,25 +62,16 @@ void setup()
     Serial.println(WiFi.localIP());
 
     delay(100);
-
-    SPI.begin(EPD_SCLK, EPD_MISO, EPD_MOSI);
-    display.init();
-
-    display.setTextColor(GxEPD_BLACK);
-    display.setRotation(1);
-    display.fillScreen(GxEPD_WHITE);
-    
-    // display.setFullWindow();
-
-    delay(1000);
 }
 
 void loop()
 {
   getWalletDetails();
+
+  display.fillScreen(GxEPD_WHITE);
   printBalance();
-  // getLNURLPayments(5);
-    display.update();
+  getLNURLPayments(5);
+  display.update();
   // Serial.println("-----------------");
   // getLNURLp();
   // Serial.println("-----------------");
@@ -80,10 +83,9 @@ void loop()
 
 void printBalance() {
     Serial.println("Printing balance");
-    display.setFont(&FreeMonoBold24pt7b);
-    display.setCursor(100, 20);
+    display.setFont(&FreeMonoBold18pt7b);
+    display.setCursor(15, 15);
     display.println(walletBalanceText);
-
 }
 
 
@@ -114,44 +116,44 @@ void getWalletDetails() {
  * @param limit 
  */
 void getLNURLPayments(int limit) {
-  // const String url = "/api/v1/payments?limit=" + String(limit);
-  // const String line = getEndpointData(url);
-  // StaticJsonDocument<4000> doc;
+  const String url = "/api/v1/payments?limit=" + String(limit);
+  const String line = getEndpointData(url);
+  StaticJsonDocument<4000> doc;
 
-  // DeserializationError error = deserializeJson(doc, line);
-  // if (error)
-  // {
-  //   Serial.print("deserializeJson() failed: ");
-  //   Serial.println(error.f_str());
-  // }
+  DeserializationError error = deserializeJson(doc, line);
+  if (error)
+  {
+    Serial.print("deserializeJson() failed: ");
+    Serial.println(error.f_str());
+  }
 
-  // uint16_t yPos = 40;
-  // String output;
-  // for (JsonObject areaElems : doc.as<JsonArray>()) {
-  //   if(areaElems["extra"] && areaElems["extra"]["tag"] && areaElems["extra"]["comment"]) {
-  //     const char* tag = areaElems["extra"]["tag"];
-  //     if(strcmp(tag,"lnurlp") == 0) {
-  //       int amount = areaElems["amount"];
-  //       amount = amount / 1000;
-  //       const char* comment = areaElems["extra"]["comment"];
-  //       // Serial.print(comment);
-  //       // Serial.print(F(" - "));
-  //       // Serial.print(amount);
-  //       // Serial.print(F(" sats "));
-  //       // Serial.println();
+  uint16_t yPos = 60;
+  String output;
+  for (JsonObject areaElems : doc.as<JsonArray>()) {
+    if(areaElems["extra"] && areaElems["extra"]["tag"] && areaElems["extra"]["comment"]) {
+      const char* tag = areaElems["extra"]["tag"];
+      if(strcmp(tag,"lnurlp") == 0) {
+        int amount = areaElems["amount"];
+        amount = amount / 1000;
+        const char* comment = areaElems["extra"]["comment"];
+        // Serial.print(comment);
+        // Serial.print(F(" - "));
+        // Serial.print(amount);
+        // Serial.print(F(" sats "));
+        // Serial.println();
 
-  //       display.setFont(&FreeSansBold6pt7b);
-  //       display.setCursor(10, yPos);
-  //       String paymentDetail(comment);
-  //       String paymentAmount(amount);
-  //       // output = paymentDetail.substring(0,20) + " - " + paymentAmount + " sats";
-  //       output = "This sssssssssssssss - 200 sats";
-  //       // output = "sat";
-  //       display.print(output);
-  //       yPos += 15;
-  //     }
-  //   }
-  // }
+        display.setFont(&FreeMonoBold9pt7b);
+        display.setCursor(10, yPos);
+        String paymentDetail(comment);
+        String paymentAmount(amount);
+        output = paymentDetail.substring(0,20) + paymentAmount + " sats";
+        // output = "This sssssssssssssss - 200 sats";
+        // output = "sat";
+        display.print(output);
+        yPos += 18;
+      }
+    }
+  }
 }
 
 /**
