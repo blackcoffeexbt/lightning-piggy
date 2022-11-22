@@ -16,12 +16,40 @@
 GxIO_Class io(SPI,  EPD_CS, EPD_DC,  EPD_RSET);
 GxEPD_Class display(io, EPD_RSET, EPD_BUSY);
 
+const char* ssid     = "TheInternet";
+const char* password = "dc924b3898";
+
+const char* host = "sats.pw";
+const char* invoiceKey = "e24c3f0e71044b93866efeb0985e3135";
+
+String walletBalanceText = "";
+String paymentDetails = "";
+
+int walletBalance = 0;
 
 void setup()
 {
     Serial.begin(115200);
+
+    delay(100);
+
     Serial.println();
-    Serial.println("setup");
+    Serial.print("Connecting to ");
+    Serial.println(ssid);
+
+    WiFi.begin(ssid, password);
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+
+    delay(100);
 
     SPI.begin(EPD_SCLK, EPD_MISO, EPD_MOSI);
     display.init();
@@ -37,10 +65,8 @@ void setup()
 
 void loop()
 {
-  Serial.println("-----------------");
-  // getWalletDetails();
+  getWalletDetails();
   printBalance();
-  // Serial.println("-----------------");
   // getLNURLPayments(5);
     display.update();
   // Serial.println("-----------------");
@@ -54,11 +80,9 @@ void loop()
 
 void printBalance() {
     Serial.println("Printing balance");
-
-    display.setFont(&FreeMonoBold9pt7b);
-    display.setCursor(10, 10);
-    display.println("Hello mum");
-    // const char HelloWorld[] = "Hello World!";
+    display.setFont(&FreeMonoBold24pt7b);
+    display.setCursor(100, 20);
+    display.println(walletBalanceText);
 
 }
 
