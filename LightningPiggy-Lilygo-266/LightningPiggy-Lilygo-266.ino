@@ -55,11 +55,11 @@ void setup()
 
     SPI.begin(EPD_SCLK, EPD_MISO, EPD_MOSI);
     display.init();
-    display.setRotation(0);
-    display.fillScreen(GxEPD_WHITE);
-    display.setTextColor(GxEPD_BLACK);
-    display.setFont(&FreeMonoBold9pt7b);
 
+    display.setTextColor(GxEPD_BLACK);
+    display.setRotation(1);
+    display.fillScreen(GxEPD_WHITE);
+    
     // display.setFullWindow();
 
     delay(1000);
@@ -72,6 +72,7 @@ void loop()
   printBalance();
   // Serial.println("-----------------");
   // getLNURLPayments(5);
+    display.update();
   // Serial.println("-----------------");
   // getLNURLp();
   // Serial.println("-----------------");
@@ -83,9 +84,12 @@ void loop()
 
 void printBalance() {
     Serial.println("Printing balance");
-    display.setCursor(10, 20);
+
+    display.setFont(&FreeMonoBold9pt7b);
+    display.setCursor(10, 10);
+    display.println("Hello mum");
     // const char HelloWorld[] = "Hello World!";
-    display.print("Seomth text");
+
 }
 
 
