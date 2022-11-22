@@ -1,9 +1,19 @@
 #include <ArduinoJson.h>
+
+#define LILYGO_T5_V266
+#include <GxEPD.h>
+#include <boards.h>
+
 #include <WiFiClientSecure.h>
-#include <GxEPD2_BW.h>
-#include <GxEPD2_3C.h>
-#include <Fonts/FreeSansBold12pt7b.h>
-#include <Fonts/FreeSansBold6pt7b.h>
+
+#include <GxDEPG0266BN/GxDEPG0266BN.h>    // 2.66" b/w   form DKE GROUP
+
+#include <Fonts/FreeMonoBold9pt7b.h>
+#include <Fonts/FreeMonoBold12pt7b.h>
+#include <Fonts/FreeMonoBold18pt7b.h>
+#include <Fonts/FreeMonoBold24pt7b.h>
+#include <GxIO/GxIO_SPI/GxIO_SPI.h>
+#include <GxIO/GxIO.h>
 
 const char* ssid     = "TheInternet";
 const char* password = "dc924b3898";
@@ -16,20 +26,8 @@ String paymentDetails = "";
 
 int walletBalance = 0;
 
-//GxEPD2_3C<GxEPD2_213c, GxEPD2_213c::HEIGHT> display(GxEPD2_213c(/*CS=5*/ SS, /*DC=*/ 22, /*RST=*/ 21, /*BUSY=*/ 4));
-// For black and white. Remember to change the _YELLOW colour
-GxEPD2_BW<GxEPD2_213_flex, GxEPD2_213_flex::HEIGHT> display(GxEPD2_213_flex(/*CS=5*/ SS, /*DC=*/ 22, /*RST=*/ 21, /*BUSY=*/ 4));
-
-/**
- * Busy - g4
- * Reset - g21
- * D/C - g22
- * CS - g5
- * SCLK - g18
- * SDI-g23
- * GND - gnd
- * VCC - 3.3
- */
+GxIO_Class io(SPI,  EPD_CS, EPD_DC,  EPD_RSET);
+GxEPD_Class display(io, EPD_RSET, EPD_BUSY);
 
 void setup()
 {
@@ -55,12 +53,14 @@ void setup()
 
     delay(100);
 
+
     display.init();
-    display.setRotation(1);
-    display.setFullWindow();
-    display.setTextColor(GxEPD_BLACK);
-    display.setFont(&FreeSansBold12pt7b);
+    display.setRotation(0);
     display.fillScreen(GxEPD_WHITE);
+    display.setTextColor(GxEPD_BLACK);
+    display.setFont(&FreeMonoBold9pt7b);
+
+    // display.setFullWindow();
 
     delay(1000);
 }
@@ -68,23 +68,24 @@ void setup()
 void loop()
 {
   Serial.println("-----------------");
-  getWalletDetails();
+  // getWalletDetails();
   printBalance();
-  Serial.println("-----------------");
-  getLNURLPayments(5);
-  Serial.println("-----------------");
-  getLNURLp();
-  Serial.println("-----------------");
+  // Serial.println("-----------------");
+  // getLNURLPayments(5);
+  // Serial.println("-----------------");
+  // getLNURLp();
+  // Serial.println("-----------------");
 
-  display.display(false); // full update
+  // display.display(false); // full update
 
   hibernate(300);
 }
 
 void printBalance() {
+    Serial.println("Printing balance");
     display.setCursor(10, 20);
     // const char HelloWorld[] = "Hello World!";
-    display.print(walletBalanceText);
+    display.print("Seomth text");
 }
 
 
@@ -115,44 +116,44 @@ void getWalletDetails() {
  * @param limit 
  */
 void getLNURLPayments(int limit) {
-  const String url = "/api/v1/payments?limit=" + String(limit);
-  const String line = getEndpointData(url);
-  StaticJsonDocument<4000> doc;
+  // const String url = "/api/v1/payments?limit=" + String(limit);
+  // const String line = getEndpointData(url);
+  // StaticJsonDocument<4000> doc;
 
-  DeserializationError error = deserializeJson(doc, line);
-  if (error)
-  {
-    Serial.print("deserializeJson() failed: ");
-    Serial.println(error.f_str());
-  }
+  // DeserializationError error = deserializeJson(doc, line);
+  // if (error)
+  // {
+  //   Serial.print("deserializeJson() failed: ");
+  //   Serial.println(error.f_str());
+  // }
 
-  uint16_t yPos = 40;
-  String output;
-  for (JsonObject areaElems : doc.as<JsonArray>()) {
-    if(areaElems["extra"] && areaElems["extra"]["tag"] && areaElems["extra"]["comment"]) {
-      const char* tag = areaElems["extra"]["tag"];
-      if(strcmp(tag,"lnurlp") == 0) {
-        int amount = areaElems["amount"];
-        amount = amount / 1000;
-        const char* comment = areaElems["extra"]["comment"];
-        // Serial.print(comment);
-        // Serial.print(F(" - "));
-        // Serial.print(amount);
-        // Serial.print(F(" sats "));
-        // Serial.println();
+  // uint16_t yPos = 40;
+  // String output;
+  // for (JsonObject areaElems : doc.as<JsonArray>()) {
+  //   if(areaElems["extra"] && areaElems["extra"]["tag"] && areaElems["extra"]["comment"]) {
+  //     const char* tag = areaElems["extra"]["tag"];
+  //     if(strcmp(tag,"lnurlp") == 0) {
+  //       int amount = areaElems["amount"];
+  //       amount = amount / 1000;
+  //       const char* comment = areaElems["extra"]["comment"];
+  //       // Serial.print(comment);
+  //       // Serial.print(F(" - "));
+  //       // Serial.print(amount);
+  //       // Serial.print(F(" sats "));
+  //       // Serial.println();
 
-        display.setFont(&FreeSansBold6pt7b);
-        display.setCursor(10, yPos);
-        String paymentDetail(comment);
-        String paymentAmount(amount);
-        // output = paymentDetail.substring(0,20) + " - " + paymentAmount + " sats";
-        output = "This sssssssssssssss - 200 sats";
-        // output = "sat";
-        display.print(output);
-        yPos += 15;
-      }
-    }
-  }
+  //       display.setFont(&FreeSansBold6pt7b);
+  //       display.setCursor(10, yPos);
+  //       String paymentDetail(comment);
+  //       String paymentAmount(amount);
+  //       // output = paymentDetail.substring(0,20) + " - " + paymentAmount + " sats";
+  //       output = "This sssssssssssssss - 200 sats";
+  //       // output = "sat";
+  //       display.print(output);
+  //       yPos += 15;
+  //     }
+  //   }
+  // }
 }
 
 /**
