@@ -82,7 +82,8 @@ void loop()
   printBalance();
   getLNURLPayments(5);
   display.update();
-  getLNURLp();
+  delay(1000);
+  // getLNURLp();
   showLNURLpQR();
 
   // display.display(false); // full update
@@ -199,12 +200,14 @@ String getLNURLp() {
 }
 
 void showLNURLpQR() {
+  qrData = "LNURL1DP68GURN8GHJ7UMPW3EJUURH9AKXUATJD3CZ7CTSDYHHVVF0D3H82UNV9UEQDZ3CM3";
   const char *qrDataChar = qrData.c_str();
   QRCode qrcoded;
 
   int qrVersion = getQrCodeVersion();
   int pixSize = getQrCodePixelSize(qrVersion);
   uint8_t qrcodeData[qrcode_getBufferSize(qrVersion)];
+  
   qrcode_initText(&qrcoded, qrcodeData, qrVersion, 0, qrDataChar);
 
   int qrWidth = pixSize * qrcoded.size;
@@ -224,8 +227,8 @@ void showLNURLpQR() {
       }
     }
   }
-  display.setFont(&Lato_Medium_12);
-  printTextCenteredX("Send me sats, please :)", display.height() - 20);
+  // display.setFont(&Lato_Medium_12);
+  // printTextCenteredX("Send me sats, please :)", display.height() - 20);
   display.update();
 }
 
