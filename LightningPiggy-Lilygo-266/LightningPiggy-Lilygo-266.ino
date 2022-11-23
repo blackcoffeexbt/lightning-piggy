@@ -205,13 +205,14 @@ void showLNURLpQR() {
   int qrVersion = getQrCodeVersion();
   int pixSize = getQrCodePixelSize(qrVersion);
   uint8_t qrcodeData[qrcode_getBufferSize(qrVersion)];
-  
-  display.fillScreen(GxEPD_WHITE);
+  qrcode_initText(&qrcoded, qrcodeData, qrVersion, 0, qrDataChar);
 
   int qrWidth = pixSize * qrcoded.size;
   int qrPosX = ((display.width() - qrWidth) / 2);
   // int qrPosY = ((EPD_HEIGHT - qrWidth) / 2);
   int qrPosY = 20;
+
+  display.fillScreen(GxEPD_WHITE);
 
   for (uint8_t y = 0; y < qrcoded.size; y++)
   {
