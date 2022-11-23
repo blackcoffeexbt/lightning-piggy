@@ -82,13 +82,11 @@ void loop()
   printBalance();
   getLNURLPayments(5);
   display.update();
-  delay(1000);
+  delay(10000);
   // getLNURLp();
-  showLNURLpQR();
-
+  // showLNURLpQR();
   // display.display(false); // full update
-
-  hibernate(300);
+  hibernate(1800);
 }
 
 void printBalance() {
@@ -213,7 +211,7 @@ void showLNURLpQR() {
   int qrWidth = pixSize * qrcoded.size;
   int qrPosX = ((display.width() - qrWidth) / 2);
   // int qrPosY = ((EPD_HEIGHT - qrWidth) / 2);
-  int qrPosY = 20;
+  int qrPosY = 10;
 
   display.fillScreen(GxEPD_WHITE);
 
@@ -311,16 +309,22 @@ int getQrCodeVersion() {
   int stringLength = qrData.length();
 
   // Using this chart with ECC_LOW https://github.com/ricmoo/QRCode#data-capacities
-  if(stringLength <= 17) {
+  if(stringLength <= 25) {
     qrVersion = 1;
   }  
-  else if(stringLength <= 32) {
+  else if(stringLength <= 47) {
     qrVersion = 2;
   }
-  else if(stringLength <= 53) {
+  else if(stringLength <= 77) {
     qrVersion = 3;
   }
-  else if(stringLength <= 134) {
+  else if(stringLength <= 114) {
+    qrVersion = 4;
+  }
+  else if(stringLength <= 154) {
+    qrVersion = 5;
+  }
+  else if(stringLength <= 195) {
     qrVersion = 6;
   }
   else if(stringLength <= 367) {
@@ -341,7 +345,7 @@ int getQrCodeVersion() {
  * @return int The size of the QR code pixels
  */
 int getQrCodePixelSize(int qrCodeVersion) {
-  int qrDisplayHeight = display.height() - 40; // qr code height in pixels
+  int qrDisplayHeight = display.height() - 20; // qr code height in pixels
   // Using https://github.com/ricmoo/QRCode#data-capacities
 
   // Get the QR code size (blocks not pixels)
