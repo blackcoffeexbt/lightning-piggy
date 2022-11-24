@@ -86,7 +86,7 @@ void loop()
   // getLNURLp();
   // showLNURLpQR();
   // display.display(false); // full update
-  hibernate(1800);
+  hibernate(6 * 60 * 60);
 }
 
 void printBalance() {
@@ -146,7 +146,7 @@ void getLNURLPayments(int limit) {
   uint16_t yPos = 70;
   String output;
   for (JsonObject areaElems : doc.as<JsonArray>()) {
-    if(areaElems["extra"] && areaElems["extra"]["tag"] && areaElems["extra"]["comment"]) {
+    if(areaElems["extra"] && !areaElems["pending"] && areaElems["extra"]["tag"]) {
       const char* tag = areaElems["extra"]["tag"];
       if(strcmp(tag,"lnurlp") == 0) {
         int amount = areaElems["amount"];
