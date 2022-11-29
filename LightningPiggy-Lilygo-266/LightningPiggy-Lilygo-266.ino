@@ -21,8 +21,8 @@
 GxIO_Class io(SPI,  EPD_CS, EPD_DC,  EPD_RSET);
 GxEPD_Class display(io, EPD_RSET, EPD_BUSY);
 
-const char* ssid     = "TheInternet";
-const char* password = "dc924b3898";
+const char* ssid     = "[SSID]";
+const char* password = "[PASSWORD HERE]";
 
 const char* host = "sats.pw";
 const char* invoiceKey = "e24c3f0e71044b93866efeb0985e3135";
@@ -243,6 +243,9 @@ String getEndpointData(String endpointUrl) {
   if (!client.connect(host, 443))
   {
     Serial.println("Server down");
+     display.setFont(&Lato_Medium_18);
+    printTextCentered("Oink. I couldn't talk to the Internet :(");
+    hibernate(30 * 60);
     delay(3000);
   }
 
