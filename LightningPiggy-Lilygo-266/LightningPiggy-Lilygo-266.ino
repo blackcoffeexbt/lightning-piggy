@@ -21,11 +21,11 @@
 GxIO_Class io(SPI,  EPD_CS, EPD_DC,  EPD_RSET);
 GxEPD_Class display(io, EPD_RSET, EPD_BUSY);
 
-const char* ssid     = "[SSID]";
-const char* password = "[PASSWORD HERE]";
+-const char* ssid     = "[SSID]"; // wifi SSID here
+-const char* password = "[PASSWORD HERE]"; // wifi password here
 
-const char* host = "sats.pw";
-const char* invoiceKey = "e24c3f0e71044b93866efeb0985e3135";
+const char* host = "legend.lnbits.com"; // HOST NAME HERE E.G. legend.lnbits.com
+const char* invoiceKey = "[INVOICE KEY HERE]"; // lnbits wallet invoice hey here
 
 String walletBalanceText = "";
 String paymentDetails = "";
